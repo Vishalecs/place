@@ -1,5 +1,0 @@
-[build]
-  command = "npm install"
-  publish = "public" # Assuming your static files are in a folder named "public" (adjust if needed)
-[build.environment]
-  NODE_ENV = "production"
