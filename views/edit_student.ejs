@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit Student</title>
+  <link rel="stylesheet" href="/css/student.css">
+</head>
+<body>
+  <h1 class="styled-heading">Edit Student</h1>
+  <form class="student-form" action="/student/update/<%= student._id %>" method="POST">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" value="<%= student.name %>" required>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" value="<%= student.email %>" required>
+
+    <label for="batch">Batch:</label>
+    <input type="text" id="batch" name="batch" value="<%= student.batch %>" required>
+
+    <label for="college">College:</label>
+    <input type="text" id="college" name="college" value="<%= student.college %>" required>
+
+    <label for="dsaScore">DSA Score:</label>
+    <input type="number" id="dsaScore" name="dsaScore" value="<%= student.dsaScore %>" required>
+
+    <label for="webdScore">WebD Score:</label>
+    <input type="number" id="webdScore" name="webdScore" value="<%= student.webdScore %>" required>
+
+    <label for="reactScore">React Score:</label>
+    <input type="number" id="reactScore" name="reactScore" value="<%= student.reactScore %>" required>
+
+    <label for="placed">Placed:</label>
+    <select id="placed" name="placed" required>
+      <option value="Placed" <% if (student.placed === 'Placed') { %>selected<% } %>>Placed</option>
+      <option value="Not placed" <% if (student.placed === 'Not placed') { %>selected<% } %>>Not placed</option>
+      <option value="On-Hold" <% if (student.placed === 'On-Hold') { %>selected<% } %>>On-Hold</option>
+    </select>
+
+    <button type="submit">Update Student</button>
+  </form>
+</body>
+</html>

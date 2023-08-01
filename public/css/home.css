@@ -1,0 +1,88 @@
+.container {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #f2f2f2;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.container h2 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 24px;
+  text-decoration: underline;
+  text-align: center;
+}
+
+.container .toggle-interviews {
+  text-align: right;
+}
+
+.container div {
+  margin-bottom: 10px;
+}
+
+.container p {
+  margin: 0;
+}
+
+.container strong {
+  font-weight: bold;
+}
+
+.container a {
+  text-decoration: none;
+  color: #007bff;
+}
+
+.container a:hover {
+  text-decoration: underline;
+}
+
+.container hr {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.interview-container {
+  display: none;
+}
+.interview-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.interview-details {
+  flex: 1;
+}
+
+.button-container {
+  display: flex;
+  align-items: center;
+}
+
+.edit-button,
+.delete-button {
+  background-color: blue;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.delete-button {
+  background-color: red;
+  margin-left: 10px;
+}
+
+.interview-item hr {
+  margin-top: 10px;
+}

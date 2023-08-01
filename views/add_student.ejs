@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Add Student</title>
+  <link rel="stylesheet" href="/css/student.css">
+</head>
+<body>
+  <h1 class="styled-heading">Add Student</h1>
+    <form class="student-form" action="/student/create" method="POST">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+
+    <label for="batch">Batch:</label>
+    <input type="text" id="batch" name="batch" required>
+
+    <label for="college">College:</label>
+    <input type="text" id="college" name="college" required>
+
+    <label for="dsaScore">DSA Score:</label>
+    <input type="number" id="dsaScore" name="dsaScore" required>
+
+    <label for="webdScore">WebD Score:</label>
+    <input type="number" id="webdScore" name="webdScore" required>
+
+    <label for="reactScore">React Score:</label>
+    <input type="number" id="reactScore" name="reactScore" required>
+
+    <label for="placed">Placed:</label>
+    <select id="placed" name="placed" required>
+      <option value="Placed">Placed</option>
+      <option value="Not placed">Not placed</option>
+      <option value="On-Hold">On-Hold</option>
+    </select>
+
+    
+
+    <button type="submit">Add Student</button>
+
+  </form>
+
+ 
+</body>
+</html>
