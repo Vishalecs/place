@@ -6,9 +6,54 @@ const mongoose = require('mongoose');
 exports.renderAddStudentForm = (req, res) => {
   res.render('add_student');
 };
+exports.renderEditStudentForm = async (req, res) => {
+  try {
+    const studentId = req.params.id;
+
+    // Use .populate('interviews') to fetch the interviews associated with the student
+    const student = await Student.findById(studentId).populate('interviews');
+
+    if (!student) {
+      return res.status(404).send('Student not found');
+    }
+
+    // Store the actual Placement Status value ('Placed', 'Unplaced', etc.) in placedOption
+    const placedOption = student.placementStatus || 'Unplaced';
+
+    // Render the edit student form with the correct Placement Status value
+    res.render('edit_student', { student, placedOption });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal server error');
+  }
+};
 
 
-// Handle the POST request to create a new student
+
+
+exports.displayStudentDetails = async (req, res) => {
+  try {
+    const studentId = req.params.id;
+
+    if (!mongoose.Types.ObjectId.isValid(studentId)) {
+      return res.status(400).json({ error: 'Invalid studentId' });
+    }
+
+    const student = await Student.findById(studentId).populate('interviews');
+    const interviews = await Interview.find({}); // Fetch all interviews
+
+    if (!student) {
+      return res.status(404).json({ error: 'Student not found' });
+    }
+
+    // Return the student and interview details to the view
+    res.render('student_detail', { student, interviews });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 exports.addStudent = async (req, res) => {
   const {
     name,
@@ -18,7 +63,7 @@ exports.addStudent = async (req, res) => {
     dsaScore,
     webdScore,
     reactScore,
-    placed,
+    placementStatus,
     selectedInterviews // Assuming the selected interviews are sent as an array
   } = req.body;
 
@@ -31,23 +76,19 @@ exports.addStudent = async (req, res) => {
       dsaScore,
       webdScore,
       reactScore,
-      placed,
+      placementStatus,
+      interviews: [], // Initialize the interviews array
     });
-
-    // Save the new student
-    await newStudent.save();
 
     if (Array.isArray(selectedInterviews)) {
       // Associate the selected interviews with the student
       for (const interviewId of selectedInterviews) {
-        const interview = await Interview.findById(interviewId);
-        if (interview) {
-          newStudent.interviews.push(interview);
-        }
+        // Create an interview object with the interview ID and default result 'On-Hold'
+        newStudent.interviews.push({ interview: interviewId });
       }
     }
 
-    // Save the updated student with the associated interviews
+    // Save the new student with interview details
     await newStudent.save();
 
     res.redirect('/');
@@ -56,38 +97,10 @@ exports.addStudent = async (req, res) => {
     res.status(500).send('Error saving student data.');
   }
 };
-
-
-// Display student details
-exports.displayStudentDetails = async (req, res) => {
-  try {
-    const studentId = req.params.id; // Assuming the studentId is passed as a parameter
-
-    if (!mongoose.Types.ObjectId.isValid(studentId)) {
-      return res.status(400).json({ error: 'Invalid studentId' });
-    }
-
-    const student = await Student.findById(studentId).populate('interviews');
-    if (!student) {
-      return res.status(404).json({ error: 'Student not found' });
-    }
-
-    // Fetch all interviews to populate the select options
-    const interviews = await Interview.find();
-
-    // Return the student and interview details to the view
-    res.render('student_detail', { student, interviews });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
-
-
-// Select an interview for a student
+ 
 exports.selectInterview = async (req, res) => {
   const studentId = req.params.id;
-  const { selectedInterview } = req.body;
+  const { selectedInterview, selectedInterviewResult } = req.body;
 
   // Check if selectedInterview is a valid ObjectId
   if (!mongoose.Types.ObjectId.isValid(selectedInterview)) {
@@ -97,12 +110,39 @@ exports.selectInterview = async (req, res) => {
   try {
     const student = await Student.findById(studentId);
 
-    const interview = await Interview.findById(selectedInterview);
-    if (!interview) {
-      return res.status(404).send('Interview not found');
+    if (!student) {
+      return res.status(404).send('Student not found');
     }
 
-    student.interviews.push(interview._id);
+    // Find the selected interview in the student's interviews array
+    const selectedInterviewIndex = student.interviews.findIndex(
+      (interview) => interview.interview && interview.interview.equals(selectedInterview)
+    );
+
+    if (selectedInterviewIndex !== -1) {
+      // If the interview exists, update its result
+      student.interviews[selectedInterviewIndex].result = selectedInterviewResult;
+
+      // Fetch additional information from the Interview model and update it in the student's interviews array
+      const interview = await Interview.findById(selectedInterview);
+      if (interview) {
+        student.interviews[selectedInterviewIndex].companyName = interview.companyName;
+        student.interviews[selectedInterviewIndex].date = interview.date;
+      }
+    } else {
+      // If the interview doesn't exist, create a new entry in the interviews array with the result
+      const interview = await Interview.findById(selectedInterview);
+      if (interview) {
+        student.interviews.push({
+          interview: selectedInterview,
+          result: selectedInterviewResult,
+          companyName: interview.companyName,
+          date: interview.date,
+        });
+      }
+    }
+
+    // Save the student document with updated interviews
     await student.save();
 
     // Redirect back to the student detail page
@@ -112,7 +152,8 @@ exports.selectInterview = async (req, res) => {
     res.status(500).send('Error selecting interview for student.');
   }
 };
-// Delete a student
+
+
 exports.deleteStudent = async (req, res) => {
   try {
     const studentId = req.params.id;
@@ -123,28 +164,7 @@ exports.deleteStudent = async (req, res) => {
   }
 };
 
-// Render edit student form
-exports.renderEditStudentForm = async (req, res) => {
-  try {
-    const studentId = req.params.id;
 
-    // Find the student by ID
-    const student = await Student.findById(studentId);
-
-    if (!student) {
-      // If the student is not found, handle the error appropriately
-      return res.status(404).json({ error: 'Student not found' });
-    }
-
-    // Render the edit student form template
-    res.render('edit_student', { student });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
-
-// Handle the POST request to update a student
 exports.updateStudent = async (req, res) => {
   const studentId = req.params.id;
 
@@ -157,8 +177,11 @@ exports.updateStudent = async (req, res) => {
       dsaScore,
       webdScore,
       reactScore,
-      placed,
+      placementStatus,
     } = req.body;
+
+    // Convert the string value of "placed" to a boolean
+    const isPlaced = placementStatus === 'Placed';
 
     if (!mongoose.Types.ObjectId.isValid(studentId)) {
       return res.status(400).json({ error: 'Invalid studentId' });
@@ -174,7 +197,7 @@ exports.updateStudent = async (req, res) => {
         dsaScore,
         webdScore,
         reactScore,
-        placed,
+        placementStatus, // Use the converted boolean value
       },
       { new: true }
     );
