@@ -20,10 +20,7 @@ const passportLocal = require('./config/passport');
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Redirect all requests to your index.html
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
-});
+
 
 app.use(expressLayouts);
 
@@ -38,7 +35,7 @@ app.use(
       maxAge: 1000 * 60 * 100,
     },
     store: MongoStore.create({
-      mongoUrl: 'mongodb://127.0.0.1/mydatabase1',
+      mongoUrl: 'mongodb+srv://vishalsinghecs99:Vishal123321@cluster0.wl8btby.mongodb.net/placement',
       autoRemoveInterval: 24 * 60 , // Remove expired sessions once a day
     }),
   })
