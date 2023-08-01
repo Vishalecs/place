@@ -8,7 +8,6 @@ router.post('/create', studentController.addStudent);
 
 // Display student details
 router.get('/:id', studentController.displayStudentDetails);
-router.post('/:id/interview/select', studentController.selectInterview);
 
 // Delete a student
 router.delete('/delete/:id', studentController.deleteStudent);
@@ -16,5 +15,7 @@ router.delete('/delete/:id', studentController.deleteStudent);
 router.get('/edit/:id', studentController.renderEditStudentForm);
 
 router.post('/update/:id', studentController.updateStudent);
+router.post('/:id/select-interview', studentController.selectInterview);
+
 
 module.exports = router;
