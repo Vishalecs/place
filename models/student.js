@@ -18,10 +18,6 @@ const studentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  placed: {
-    type: String,
-    required: true,
-  },
   reactScore: {
     type: Number,
     required: true,
@@ -34,7 +30,19 @@ const studentSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  interviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Interview' }],
+  placementStatus: {
+    type: String,
+    enum: ['Placed', 'Unplaced'], // Enum to restrict the value to either 'Placed' or 'Unplaced'
+    required: true,
+  },
+  interviews: [
+    {
+      interview: { type: mongoose.Schema.Types.ObjectId, ref: 'Interview' },
+      result: { type: String, enum: ['Pass', 'Failed', 'On-Hold'], default: 'On-Hold' },
+      companyName: String, // Add the companyName field
+      date: Date, // Add the date field
+    }
+  ]
 });
 
 const Student = mongoose.model('Student', studentSchema);
